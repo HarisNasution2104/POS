@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Login.dart';  // Import halaman login
-import 'pages/people.dart';
-import 'pages/profile.dart';
+import 'Login.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'pages/dashboard.dart';
+import 'pages/kategori.dart';
+import 'pages/add.dart';
+import 'pages/toko.dart';
+import 'pages/profile.dart';
+import 'pages/Report.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -12,15 +17,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-    final items = const [
-    Icon(Icons.people, size: 30,),
-    Icon(Icons.person, size: 30,),
-    Icon(Icons.add, size: 30,),
-    Icon(Icons.search_outlined, size: 30,)
+  final items = const [
+    Icon(Icons.home, size: 30),
+    Icon(Icons.category, size: 30),
+    Icon(Icons.add, size: 30),
+    Icon(Icons.store, size: 30),
+    Icon(Icons.person, size: 30),
   ];
 
-  int index = 1;
+  int index = 0;
   String? userEmail;
 
   @override
@@ -29,15 +34,13 @@ class _HomePageState extends State<HomePage> {
     _checkLoginStatus();
   }
 
-  // Mengecek status login saat aplikasi dimulai
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userEmail = prefs.getString('email');  // Mengambil email pengguna dari SharedPreferences
+      userEmail = prefs.getString('email');
     });
 
     if (userEmail == null) {
-      // Jika belum login, arahkan ke halaman login
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -46,50 +49,64 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-@override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
-        title: const Text('Curved Navigation Bar'),
+        title: const Text('POS System'),
         backgroundColor: Colors.blue[300],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.remove('email');
+              await prefs.setBool('is_logged_in', false);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: CurvedNavigationBar(
         items: items,
         index: index,
-        onTap: (selctedIndex){
+        onTap: (selectedIndex) {
           setState(() {
-            index = selctedIndex;
+            index = selectedIndex;
           });
         },
         height: 70,
         backgroundColor: Colors.transparent,
         animationDuration: const Duration(milliseconds: 300),
-        // animationCurve: ,
       ),
       body: Container(
         color: Colors.blue,
         width: double.infinity,
         height: double.infinity,
         alignment: Alignment.center,
-        child: getSelectedWidget(index: index)
+        child: getSelectedWidget(index: index),
       ),
     );
   }
 
-  Widget getSelectedWidget({required int index}){
-    Widget widget;
-    switch(index){
+  Widget getSelectedWidget({required int index}) {
+    switch (index) {
       case 0:
-        widget = const People();
-        break;
+        return const KategoriTab();
       case 1:
-        widget = const Profile();
-        break;
+        return const ReportTab();
+      case 2:
+        return const DashboardTab();
+      case 3:
+        return const ShopTab();
+      case 4:
+        return const ProfileTab();
       default:
-        widget = const People();
-        break;
+        return const DashboardTab();
     }
-    return widget;
   }
 }
+
