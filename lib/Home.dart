@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     Icon(Icons.person, size: 30),
   ];
 
-  int index = 0;
+  int index = 2;
   String? userEmail;
 
   @override
