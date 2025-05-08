@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Register.dart';
 import 'login.dart';  // Pastikan file ini ada dan diimpor
 import 'home.dart';   // Pastikan file ini ada dan diimpor
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/login': (context) => LoginPage(),
+        '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(),
       },
     );

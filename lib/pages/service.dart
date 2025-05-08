@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ReportTab extends StatelessWidget {
-  const ReportTab({super.key});
+class ServiceTab extends StatefulWidget {
+  const ServiceTab({super.key});
 
+  @override
+  State<ServiceTab> createState() => _ServiceTabState();
+}
+
+class _ServiceTabState extends State<ServiceTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +20,7 @@ class ReportTab extends StatelessWidget {
         children: [
           _buildMenuItem(
             icon: Icons.inventory_2_outlined,
-            title: 'Laporan Penjualan',
+            title: 'Barang',
             subtitle: 'Kelola data barang',
             onTap: () {
               // Navigasi ke halaman Barang
@@ -23,7 +28,7 @@ class ReportTab extends StatelessWidget {
           ),
           _buildMenuItem(
             icon: Icons.category_outlined,
-            title: 'Laporan Pembelian',
+            title: 'Kategori',
             subtitle: 'Kelola kategori produk',
             onTap: () {
               // Navigasi ke halaman Kategori
@@ -31,7 +36,7 @@ class ReportTab extends StatelessWidget {
           ),
           _buildMenuItem(
             icon: Icons.point_of_sale_outlined,
-            title: 'Laporan Laba/Rugi (Profit & Loss)',
+            title: 'Stok',
             subtitle: 'Pantau dan kelola stok',
             onTap: () {
               // Navigasi ke halaman Stok
@@ -39,39 +44,7 @@ class ReportTab extends StatelessWidget {
           ),
           _buildMenuItem(
             icon: Icons.shopping_cart_outlined,
-            title: 'Laporan Stok Barang',
-            subtitle: 'Lihat riwayat penjualan',
-            onTap: () {
-              // Navigasi ke halaman Penjualan
-            },
-          ),
-          _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
-            title: 'Laporan Arus Kas',
-            subtitle: 'Lihat riwayat penjualan',
-            onTap: () {
-              // Navigasi ke halaman Penjualan
-            },
-          ),
-                    _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
-            title: 'Laporan Pengeluaran',
-            subtitle: 'Lihat riwayat penjualan',
-            onTap: () {
-              // Navigasi ke halaman Penjualan
-            },
-          ),
-                              _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
-            title: 'Laporan Return',
-            subtitle: 'Lihat riwayat penjualan',
-            onTap: () {
-              // Navigasi ke halaman Penjualan
-            },
-          ),
-                             _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
-            title: 'Laporan Kinerja Kasir / Pegawai',
+            title: 'Penjualan',
             subtitle: 'Lihat riwayat penjualan',
             onTap: () {
               // Navigasi ke halaman Penjualan
@@ -101,4 +74,3 @@ class ReportTab extends StatelessWidget {
     );
   }
 }
-

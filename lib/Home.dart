@@ -3,11 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Login.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'pages/dashboard.dart';
-import 'pages/kategori.dart';
-import 'pages/add.dart';
+import 'pages/service.dart';
 import 'pages/toko.dart';
 import 'pages/profile.dart';
 import 'pages/Report.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,11 +18,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final items = const [
-    Icon(Icons.home, size: 30),
-    Icon(Icons.category, size: 30),
-    Icon(Icons.add, size: 30),
-    Icon(Icons.store, size: 30),
-    Icon(Icons.person, size: 30),
+    Icon(FontAwesomeIcons.layerGroup, size: 25),
+    Icon(FontAwesomeIcons.solidFileLines, size: 25),
+    Icon(FontAwesomeIcons.house, size: 25),
+    Icon(FontAwesomeIcons.store, size: 25),
+    Icon(FontAwesomeIcons.solidUser, size: 25),
   ];
 
   int index = 2;
@@ -51,25 +51,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
-      appBar: AppBar(
-        title: const Text('POS System'),
-        backgroundColor: Colors.blue[300],
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.remove('email');
-              await prefs.setBool('is_logged_in', false);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
       bottomNavigationBar: CurvedNavigationBar(
         items: items,
         index: index,
@@ -83,7 +64,7 @@ class _HomePageState extends State<HomePage> {
         animationDuration: const Duration(milliseconds: 300),
       ),
       body: Container(
-        color: Colors.blue,
+        color: Color(0xFFE9C46A),
         width: double.infinity,
         height: double.infinity,
         alignment: Alignment.center,
@@ -95,7 +76,7 @@ class _HomePageState extends State<HomePage> {
   Widget getSelectedWidget({required int index}) {
     switch (index) {
       case 0:
-        return const KategoriTab();
+        return const ServiceTab();
       case 1:
         return const ReportTab();
       case 2:
@@ -109,4 +90,3 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
-

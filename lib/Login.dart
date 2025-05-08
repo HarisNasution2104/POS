@@ -49,6 +49,13 @@ class _LoginPageState extends State<LoginPage> {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('email', email); // Simpan email
           prefs.setBool('is_logged_in', true); // Simpan status login
+          
+          // Menyimpan user_id
+          final user = res['user'];
+          prefs.setInt('user_id', user['id']);
+
+          // Menyimpan user_db_name
+          prefs.setString('user_db_name', user['user_db_name']); // Menyimpan nama database
 
           _showMessage(res['message']);
           Navigator.pushReplacement(
