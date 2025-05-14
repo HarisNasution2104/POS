@@ -18,14 +18,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final items = const [
-    Icon(FontAwesomeIcons.layerGroup, size: 25),
-    Icon(FontAwesomeIcons.solidFileLines, size: 25),
-    Icon(FontAwesomeIcons.house, size: 25),
-    Icon(FontAwesomeIcons.store, size: 25),
-    Icon(FontAwesomeIcons.solidUser, size: 25),
+    Icon(FontAwesomeIcons.layerGroup, size: 25, color: Colors.white,),
+    Icon(FontAwesomeIcons.solidFileLines, size: 25, color: Colors.white,),
+    Icon(FontAwesomeIcons.house, size: 25, color: Colors.white,),
+    Icon(FontAwesomeIcons.store, size: 25, color: Colors.white,),
+    Icon(FontAwesomeIcons.solidUser, size: 25, color: Colors.white,),
   ];
 
-  int index = 2;
+  int index = 0;
   String? userEmail;
 
   @override
@@ -59,7 +59,8 @@ class _HomePageState extends State<HomePage> {
             index = selectedIndex;
           });
         },
-        height: 70,
+        height: 75,
+        color: const Color(0xFFE76F51),
         backgroundColor: Colors.transparent,
         animationDuration: const Duration(milliseconds: 300),
       ),

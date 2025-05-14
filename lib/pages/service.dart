@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'Manajemen/Barang/Barang.dart';
+import 'Manajemen/Kategori/Kategori.dart';
 class ServiceTab extends StatefulWidget {
   const ServiceTab({super.key});
 
@@ -12,30 +14,43 @@ class _ServiceTabState extends State<ServiceTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manajemen Layanan'),
+        title: const Text(
+          'Manajemen',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: const Color(0xFFE76F51),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildMenuItem(
-            icon: Icons.inventory_2_outlined,
+            icon: FontAwesomeIcons.boxesPacking,
             title: 'Barang',
             subtitle: 'Kelola data barang',
             onTap: () {
-              // Navigasi ke halaman Barang
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Barang_page()),
+              );
             },
           ),
           _buildMenuItem(
-            icon: Icons.category_outlined,
+            icon: FontAwesomeIcons.sliders,
             title: 'Kategori',
             subtitle: 'Kelola kategori produk',
             onTap: () {
-              // Navigasi ke halaman Kategori
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => KategoriPage()),
+              );
             },
           ),
           _buildMenuItem(
-            icon: Icons.point_of_sale_outlined,
+            icon: FontAwesomeIcons.clipboard,
             title: 'Stok',
             subtitle: 'Pantau dan kelola stok',
             onTap: () {
@@ -43,9 +58,41 @@ class _ServiceTabState extends State<ServiceTab> {
             },
           ),
           _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
+            icon: FontAwesomeIcons.cartShopping,
             title: 'Penjualan',
-            subtitle: 'Lihat riwayat penjualan',
+            subtitle: 'Transaksi Penjualan',
+            onTap: () {
+              // Navigasi ke halaman Penjualan
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.cartArrowDown,
+            title: 'Pembelian',
+            subtitle: 'Transaksi Pembelian',
+            onTap: () {
+              // Navigasi ke halaman Barang
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.truck,
+            title: 'Supplier',
+            subtitle: 'Kelola Supplier',
+            onTap: () {
+              // Navigasi ke halaman Kategori
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.userGroup,
+            title: 'Customer',
+            subtitle: 'Kelola Pelanggan',
+            onTap: () {
+              // Navigasi ke halaman Stok
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.receipt,
+            title: 'Pengeluaran',
+            subtitle: 'Data Dana Pengeluaran',
             onTap: () {
               // Navigasi ke halaman Penjualan
             },

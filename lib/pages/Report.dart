@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ReportTab extends StatelessWidget {
   const ReportTab({super.key});
@@ -7,14 +8,21 @@ class ReportTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manajemen Layanan'),
+        title: const Text(
+          'Laporan',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: const Color(0xFFE76F51),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildMenuItem(
-            icon: Icons.inventory_2_outlined,
+            icon: FontAwesomeIcons.receipt,
             title: 'Laporan Penjualan',
             subtitle: 'Kelola data barang',
             onTap: () {
@@ -22,7 +30,7 @@ class ReportTab extends StatelessWidget {
             },
           ),
           _buildMenuItem(
-            icon: Icons.category_outlined,
+            icon: FontAwesomeIcons.truckFast,
             title: 'Laporan Pembelian',
             subtitle: 'Kelola kategori produk',
             onTap: () {
@@ -30,7 +38,7 @@ class ReportTab extends StatelessWidget {
             },
           ),
           _buildMenuItem(
-            icon: Icons.point_of_sale_outlined,
+            icon: FontAwesomeIcons.dollarSign,
             title: 'Laporan Laba/Rugi (Profit & Loss)',
             subtitle: 'Pantau dan kelola stok',
             onTap: () {
@@ -38,7 +46,7 @@ class ReportTab extends StatelessWidget {
             },
           ),
           _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
+            icon: FontAwesomeIcons.boxesStacked,
             title: 'Laporan Stok Barang',
             subtitle: 'Lihat riwayat penjualan',
             onTap: () {
@@ -46,31 +54,31 @@ class ReportTab extends StatelessWidget {
             },
           ),
           _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
+            icon: FontAwesomeIcons.calculator,
             title: 'Laporan Arus Kas',
             subtitle: 'Lihat riwayat penjualan',
             onTap: () {
               // Navigasi ke halaman Penjualan
             },
           ),
-                    _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
+          _buildMenuItem(
+            icon: FontAwesomeIcons.fileInvoice,
             title: 'Laporan Pengeluaran',
             subtitle: 'Lihat riwayat penjualan',
             onTap: () {
               // Navigasi ke halaman Penjualan
             },
           ),
-                              _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
+          _buildMenuItem(
+            icon: FontAwesomeIcons.retweet,
             title: 'Laporan Return',
             subtitle: 'Lihat riwayat penjualan',
             onTap: () {
               // Navigasi ke halaman Penjualan
             },
           ),
-                             _buildMenuItem(
-            icon: Icons.shopping_cart_outlined,
+          _buildMenuItem(
+            icon: FontAwesomeIcons.userTie,
             title: 'Laporan Kinerja Kasir / Pegawai',
             subtitle: 'Lihat riwayat penjualan',
             onTap: () {
@@ -101,4 +109,3 @@ class ReportTab extends StatelessWidget {
     );
   }
 }
-
