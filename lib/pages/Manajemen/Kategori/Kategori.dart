@@ -11,7 +11,7 @@ class _KategoriPageState extends State<KategoriPage> {
   final TextEditingController _searchController = TextEditingController();
   final List<String> _kategoriList = [];
   List<String> _filteredKategori = [];
-  Set<String> _selectedKategori = {};
+  final Set<String> _selectedKategori = {};
   bool _isSelecting = false;
 
   @override

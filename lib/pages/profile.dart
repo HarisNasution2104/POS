@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileTab extends StatefulWidget {
-  const ProfileTab({Key? key}) : super(key: key);
+  const ProfileTab({super.key});
 
   @override
   _ProfileTabState createState() => _ProfileTabState();
