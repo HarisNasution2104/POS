@@ -22,10 +22,13 @@ class _KategoriPageState extends State<KategoriPage> {
 
   void _filterKategori(String query) {
     setState(() {
-      _filteredKategori = _kategoriList
-          .where((kategori) =>
-              kategori.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _filteredKategori =
+          _kategoriList
+              .where(
+                (kategori) =>
+                    kategori.toLowerCase().contains(query.toLowerCase()),
+              )
+              .toList();
     });
   }
 
@@ -34,9 +37,11 @@ class _KategoriPageState extends State<KategoriPage> {
     if (newKategori.isEmpty) return;
 
     if (_kategoriList.any(
-        (item) => item.toLowerCase() == newKategori.toLowerCase())) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kategori sudah ada')));
+      (item) => item.toLowerCase() == newKategori.toLowerCase(),
+    )) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kategori sudah ada')));
       return;
     }
 
@@ -47,7 +52,8 @@ class _KategoriPageState extends State<KategoriPage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kategori "$newKategori" ditambahkan')));
+      SnackBar(content: Text('Kategori "$newKategori" ditambahkan')),
+    );
   }
 
   void _hapusKategori(String kategori) {
@@ -56,8 +62,9 @@ class _KategoriPageState extends State<KategoriPage> {
       _filteredKategori.remove(kategori);
       _selectedKategori.remove(kategori);
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kategori "$kategori" dihapus')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Kategori "$kategori" dihapus')));
   }
 
   void _hapusKategoriYangDipilih() {
@@ -70,7 +77,8 @@ class _KategoriPageState extends State<KategoriPage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kategori yang dipilih telah dihapus')));
+      const SnackBar(content: Text('Kategori yang dipilih telah dihapus')),
+    );
   }
 
   void _toggleSelect(String kategori) {
@@ -105,7 +113,13 @@ class _KategoriPageState extends State<KategoriPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         title: Text(
-            _isSelecting ? '${_selectedKategori.length} dipilih' : 'Kategori',style: TextStyle(color: Colors.white),),
+          _isSelecting ? '${_selectedKategori.length} dipilih' : 'Kategori',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         actions: [
           if (_isSelecting)
             IconButton(
@@ -155,35 +169,39 @@ class _KategoriPageState extends State<KategoriPage> {
 
             // List Kategori
             Expanded(
-              child: _filteredKategori.isEmpty
-                  ? const Center(child: Text('Belum ada kategori'))
-                  : ListView.builder(
-                      itemCount: _filteredKategori.length,
-                      itemBuilder: (context, index) {
-                        final kategori = _filteredKategori[index];
-                        final isSelected =
-                            _selectedKategori.contains(kategori);
+              child:
+                  _filteredKategori.isEmpty
+                      ? const Center(child: Text('Belum ada kategori'))
+                      : ListView.builder(
+                        itemCount: _filteredKategori.length,
+                        itemBuilder: (context, index) {
+                          final kategori = _filteredKategori[index];
+                          final isSelected = _selectedKategori.contains(
+                            kategori,
+                          );
 
-                        return GestureDetector(
-                          onLongPress: () => _startSelectMode(kategori),
-                          onTap: () => _toggleSelect(kategori),
-                          child: ListTile(
-                            title: Text(kategori),
-                            tileColor: isSelected
-                                ? Colors.orange.shade100
-                                : null,
-                            trailing: !_isSelecting
-                                ? IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () =>
-                                        _hapusKategori(kategori),
-                                  )
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
+                          return GestureDetector(
+                            onLongPress: () => _startSelectMode(kategori),
+                            onTap: () => _toggleSelect(kategori),
+                            child: ListTile(
+                              title: Text(kategori),
+                              tileColor:
+                                  isSelected ? Colors.orange.shade100 : null,
+                              trailing:
+                                  !_isSelecting
+                                      ? IconButton(
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed:
+                                            () => _hapusKategori(kategori),
+                                      )
+                                      : null,
+                            ),
+                          );
+                        },
+                      ),
             ),
 
             // Tombol Hapus Bulat (jika ada yang dipilih)

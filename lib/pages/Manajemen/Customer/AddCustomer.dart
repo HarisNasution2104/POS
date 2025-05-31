@@ -20,7 +20,13 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: const Text('Tambah Pelanggan'),
+        title: const Text('Tambah Pelanggan',
+                  style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),),
+          foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

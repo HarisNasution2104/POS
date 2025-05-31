@@ -123,7 +123,13 @@ class _AddPurchasePageState extends State<AddPurchasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Pembelian'),
+        title: const Text('Tambah Pembelian',
+                  style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),),
+          foregroundColor: Colors.white,
         backgroundColor: primaryColor,
       ),
       body: Padding(

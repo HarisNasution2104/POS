@@ -106,7 +106,11 @@ class _CustomerPageState extends State<CustomerPage> {
           isSelecting
               ? '${selectedIndexes.length} dipilih'
               : 'Daftar Pelanggan',
-          style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,

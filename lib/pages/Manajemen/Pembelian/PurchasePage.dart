@@ -36,10 +36,8 @@ class _PurchasePageState extends State<PurchasePage> {
 
   List<Purchase> displayedPurchases = [];
   String searchQuery = '';
-  String sortBy = 'tanggal'; // tanggal, supplier, totalHarga
-
-  final Set<Purchase> _selectedPurchases = {};
-  bool _isSelecting = false;
+  final Set<Purchase> selectedPurchases = {};
+  bool isSelecting = false;
 
   @override
   void initState() {
@@ -50,79 +48,32 @@ class _PurchasePageState extends State<PurchasePage> {
   void _searchPurchase(String query) {
     setState(() {
       searchQuery = query.toLowerCase();
-      if (searchQuery.isEmpty) {
+      if (query.isEmpty) {
         displayedPurchases = List.from(allPurchases);
       } else {
-        displayedPurchases = allPurchases.where((purchase) {
-          return purchase.kode.toLowerCase().contains(searchQuery) ||
-              purchase.supplier.toLowerCase().contains(searchQuery);
-        }).toList();
+        displayedPurchases =
+            allPurchases.where((p) {
+              return p.kode.toLowerCase().contains(searchQuery) ||
+                  p.supplier.toLowerCase().contains(searchQuery);
+            }).toList();
       }
     });
-  }
-
-  void _sortPurchase(String field) {
-    setState(() {
-      sortBy = field;
-      if (field == 'supplier') {
-        displayedPurchases.sort((a, b) => a.supplier.compareTo(b.supplier));
-      } else if (field == 'totalHarga') {
-        displayedPurchases.sort((a, b) => a.totalHarga.compareTo(b.totalHarga));
-      } else {
-        // default tanggal descending (latest first)
-        displayedPurchases.sort((a, b) => b.tanggal.compareTo(a.tanggal));
-      }
-    });
-  }
-
-  void _showSortFilterOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Sort by Tanggal (Terbaru)'),
-              onTap: () {
-                _sortPurchase('tanggal');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Sort by Supplier'),
-              onTap: () {
-                _sortPurchase('supplier');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Sort by Total Harga'),
-              onTap: () {
-                _sortPurchase('totalHarga');
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _startSelectMode(Purchase purchase) {
     setState(() {
-      _isSelecting = true;
-      _selectedPurchases.add(purchase);
+      isSelecting = true;
+      selectedPurchases.add(purchase);
     });
   }
 
   void _toggleSelect(Purchase purchase) {
-    if (_isSelecting) {
+    if (isSelecting) {
       setState(() {
-        if (_selectedPurchases.contains(purchase)) {
-          _selectedPurchases.remove(purchase);
+        if (selectedPurchases.contains(purchase)) {
+          selectedPurchases.remove(purchase);
         } else {
-          _selectedPurchases.add(purchase);
+          selectedPurchases.add(purchase);
         }
       });
     }
@@ -130,29 +81,23 @@ class _PurchasePageState extends State<PurchasePage> {
 
   void _cancelSelectMode() {
     setState(() {
-      _isSelecting = false;
-      _selectedPurchases.clear();
+      isSelecting = false;
+      selectedPurchases.clear();
     });
   }
 
   void _hapusPurchaseYangDipilih() {
     setState(() {
-      allPurchases.removeWhere((p) => _selectedPurchases.contains(p));
-      displayedPurchases.removeWhere((p) => _selectedPurchases.contains(p));
-      _selectedPurchases.clear();
-      _isSelecting = false;
+      allPurchases.removeWhere((p) => selectedPurchases.contains(p));
+      _searchPurchase(searchQuery);
+      selectedPurchases.clear();
+      isSelecting = false;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Data pembelian yang dipilih telah dihapus')),
-    );
-  }
-
-  void _navigateToAddPurchase() {
-    // Navigasi ke halaman tambah pembelian
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AddPurchasePage()),
+      const SnackBar(
+        content: Text('Data pembelian yang dipilih telah dihapus'),
+      ),
     );
   }
 
@@ -164,132 +109,160 @@ class _PurchasePageState extends State<PurchasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: Colors.white,
         title: Text(
-          _isSelecting
-              ? '${_selectedPurchases.length} dipilih'
-              : 'Transaksi Pembelian',
+          isSelecting
+              ? '${selectedPurchases.length} dipilih'
+              : 'Daftar Pembelian',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
         actions: [
-          if (_isSelecting)
+          if (isSelecting)
             IconButton(
               icon: const Icon(Icons.check, color: Colors.white),
               onPressed: _cancelSelectMode,
               tooltip: 'Selesai',
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.more_vert_outlined, color: Colors.white),
-              onPressed: _showSortFilterOptions,
             ),
         ],
-        backgroundColor: primaryColor,
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.filter_list, color: primaryColor),
-                  onPressed: _showSortFilterOptions,
+            padding: const EdgeInsets.all(8),
+            child: TextField(
+              onChanged: _searchPurchase,
+              decoration: InputDecoration(
+                labelText: 'Cari Pembelian...',
+                labelStyle: TextStyle(color: primaryColor),
+                prefixIcon: Icon(Icons.search, color: primaryColor),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: primaryColor),
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                Expanded(
-                  child: TextField(
-                    onChanged: _searchPurchase,
-                    decoration: InputDecoration(
-                      labelText: 'Cari Pembelian...',
-                      labelStyle: TextStyle(color: primaryColor),
-                      prefixIcon: Icon(Icons.search, color: primaryColor),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: primaryColor),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: primaryColor),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: primaryColor),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: primaryColor),
+                  borderRadius: BorderRadius.circular(30),
                 ),
-              ],
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: primaryColor),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: displayedPurchases.length,
-              itemBuilder: (context, index) {
-                final purchase = displayedPurchases[index];
-                final isSelected = _selectedPurchases.contains(purchase);
+            child:
+                displayedPurchases.isEmpty
+                    ? const Center(child: Text('Belum ada pembelian'))
+                    : ListView.builder(
+                      itemCount: displayedPurchases.length,
+                      itemBuilder: (context, index) {
+                        final purchase = displayedPurchases[index];
+                        final isSelected = selectedPurchases.contains(purchase);
 
-                return GestureDetector(
-                  onLongPress: () => _startSelectMode(purchase),
-                  onTap: () => _toggleSelect(purchase),
-                  child: Card(
-                    color: isSelected ? Colors.orange.shade100 : null,
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                purchase.supplier,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        return GestureDetector(
+                          onLongPress: () => _startSelectMode(purchase),
+                          onTap:
+                              () =>
+                                  isSelecting
+                                      ? _toggleSelect(purchase)
+                                      : null, // Optional: Navigate to detail page
+                          child: Card(
+                            color: isSelected ? Colors.orange.shade100 : null,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          purchase.supplier,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          purchase.kode,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        Text(
+                                          _formatDate(purchase.tanggal),
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Rp${purchase.totalHarga}',
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  CircleAvatar(
+                                    backgroundColor: primaryColor,
+                                    child: const Icon(
+                                      Icons.receipt_long,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                _formatDate(purchase.tanggal),
-                                style: const TextStyle(color: Colors.grey),
-                              ),
-                            ],
+                            ),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(purchase.kode, style: const TextStyle(color: Colors.grey)),
-                              Text('Rp${purchase.totalHarga}', style: const TextStyle(color: Colors.grey)),
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
-            ),
           ),
         ],
       ),
-      floatingActionButton: _isSelecting && _selectedPurchases.isNotEmpty
-          ? FloatingActionButton(
-              onPressed: _hapusPurchaseYangDipilih,
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.delete, color: Colors.white),
-            )
-          : FloatingActionButton(
-              onPressed: _navigateToAddPurchase,
-              backgroundColor: primaryColor,
-              child: const Icon(Icons.add, color: Colors.white),
-            ),
+      floatingActionButton:
+          isSelecting && selectedPurchases.isNotEmpty
+              ? FloatingActionButton(
+                onPressed: _hapusPurchaseYangDipilih,
+                backgroundColor: Colors.red,
+                child: const Icon(Icons.delete, color: Colors.white),
+              )
+              : FloatingActionButton(
+                onPressed: () async {
+                  final newPurchase = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddPurchasePage(),
+                    ),
+                  );
+                  if (newPurchase != null && newPurchase is Purchase) {
+                    setState(() {
+                      allPurchases.add(newPurchase);
+                      _searchPurchase(searchQuery);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Pembelian ditambahkan!')),
+                    );
+                  }
+                },
+                backgroundColor: primaryColor,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
     );
   }
 }
-

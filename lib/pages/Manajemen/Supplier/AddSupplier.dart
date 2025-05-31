@@ -1,55 +1,53 @@
 import 'package:flutter/material.dart';
 
-class EditCustomerPage extends StatefulWidget {
-  final String name;
-  final String email;
-  final String phone;
-  final String address;
-
-  const EditCustomerPage({
-    super.key,
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.address,
-  });
+class AddSupplierPage extends StatefulWidget {
+  const AddSupplierPage({super.key});
 
   @override
-  State<EditCustomerPage> createState() => _EditCustomerPageState();
+  State<AddSupplierPage> createState() => _AddSupplierPageState();
 }
 
-class _EditCustomerPageState extends State<EditCustomerPage> {
-  late TextEditingController nameController;
-  late TextEditingController emailController;
-  late TextEditingController phoneController;
-  late TextEditingController addressController;
+class _AddSupplierPageState extends State<AddSupplierPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController(text: widget.name);
-    emailController = TextEditingController(text: widget.email);
-    phoneController = TextEditingController(text: widget.phone);
-    addressController = TextEditingController(text: widget.address);
-  }
+  static const Color primaryColor = Color(0xFFE76F51);
 
-  @override
-  void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    super.dispose();
+  void _saveSupplier() {
+    final String name = nameController.text.trim();
+    final String email = emailController.text.trim();
+    final String contact = contactController.text.trim();
+    final String address = addressController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || contact.isEmpty || address.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Semua field wajib diisi')),
+      );
+      return;
+    }
+
+    final Map<String, String> newSupplier = {
+      'name': name,
+      'email': email,
+      'contact': contact,
+      'address': address,
+    };
+
+    Navigator.pop(context, newSupplier);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Supplier ditambahkan!')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryColor = Color(0xFFE76F51);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: const Text('Edit Pelanggan',
+        title: const Text('Tambah Supplier',
                   style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -69,7 +67,7 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: primaryColor.withOpacity(0.3),
-                    child: const Icon(Icons.person, size: 50, color: Colors.white),
+                    child: const Icon(Icons.local_shipping, size: 50, color: Colors.white),
                   ),
                   Positioned(
                     bottom: 0,
@@ -86,7 +84,7 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
             const SizedBox(height: 16),
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nama'),
+              decoration: const InputDecoration(labelText: 'Nama Supplier'),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -96,8 +94,8 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(labelText: 'Telepon'),
+              controller: contactController,
+              decoration: const InputDecoration(labelText: 'No. Telepon'),
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
@@ -112,22 +110,13 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
-                onPressed: () {
-                  final editedCustomer = {
-                    'name': nameController.text,
-                    'email': emailController.text,
-                    'phone': phoneController.text,
-                    'address': addressController.text,
-                  };
-
-                  Navigator.pop(context, editedCustomer);
-                },
-                child: const Text('SIMPAN PERUBAHAN', style: TextStyle(color: Colors.white)),
+                onPressed: _saveSupplier,
+                child: const Text('SIMPAN', style: TextStyle(color: Colors.white)),
               ),
             ),
             const SizedBox(height: 16),
             const Text(
-              'Pastikan email pelanggan terisi dengan benar (email yang telah tersimpan tidak dapat diubah)',
+              'Pastikan email supplier terisi dengan benar (email yang telah tersimpan tidak dapat diubah).',
               style: TextStyle(fontSize: 12, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
