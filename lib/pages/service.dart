@@ -8,6 +8,7 @@ import 'Manajemen/Pembelian/PurchasePage.dart';
 import 'Manajemen/Supplier/SupplierPage.dart';
 import 'Manajemen/Customer/CustomerPage.dart';
 import 'Manajemen/Pengeluaran/ExpensePage.dart';
+
 class ServiceTab extends StatefulWidget {
   const ServiceTab({super.key});
 
@@ -56,72 +57,71 @@ class _ServiceTabState extends State<ServiceTab> {
             },
           ),
           _buildMenuItem(
-  icon: FontAwesomeIcons.clipboard,
-  title: 'Stok',
-  subtitle: 'Pantau dan kelola stok',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const StockPage()),
-    );
-  },
-),
-_buildMenuItem(
-  icon: FontAwesomeIcons.cartShopping,
-  title: 'Penjualan',
-  subtitle: 'Transaksi Penjualan',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SalesPage()),
-    );
-  },
-),
-_buildMenuItem(
-  icon: FontAwesomeIcons.cartArrowDown,
-  title: 'Pembelian',
-  subtitle: 'Transaksi Pembelian',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const PurchasePage()),
-    );
-  },
-),
-_buildMenuItem(
-  icon: FontAwesomeIcons.truck,
-  title: 'Supplier',
-  subtitle: 'Kelola Supplier',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SupplierPage()),
-    );
-  },
-),
-_buildMenuItem(
-  icon: FontAwesomeIcons.userGroup,
-  title: 'Customer',
-  subtitle: 'Kelola Pelanggan',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CustomerPage()),
-    );
-  },
-),
-_buildMenuItem(
-  icon: FontAwesomeIcons.receipt,
-  title: 'Pengeluaran',
-  subtitle: 'Data Dana Pengeluaran',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ExpensePage()),
-    );
-  },
-),
-
+            icon: FontAwesomeIcons.clipboard,
+            title: 'Stok',
+            subtitle: 'Pantau dan kelola stok',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StockPage()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.cartShopping,
+            title: 'Penjualan',
+            subtitle: 'Transaksi Penjualan',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SalesPage()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.cartArrowDown,
+            title: 'Pembelian',
+            subtitle: 'Transaksi Pembelian',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PurchasePage()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.truck,
+            title: 'Supplier',
+            subtitle: 'Kelola Supplier',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SupplierPage()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.userGroup,
+            title: 'Customer',
+            subtitle: 'Kelola Pelanggan',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CustomerPage()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            icon: FontAwesomeIcons.receipt,
+            title: 'Pengeluaran',
+            subtitle: 'Data Dana Pengeluaran',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExpensePage()),
+              );
+            },
+          ),
         ],
       ),
     );

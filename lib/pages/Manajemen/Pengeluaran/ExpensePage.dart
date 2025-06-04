@@ -11,12 +11,7 @@ class ExpensePage extends StatelessWidget {
         backgroundColor: const Color(0xFFE76F51),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigasi ke halaman detail pengeluaran
-          },
-          child: const Text('Tambah Pengeluaran'),
-        ),
+        child: Text('Masih Dalam Tahap Pengembangan')
       ),
     );
   }

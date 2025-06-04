@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'Toko/SettingsPage.dart';
 
 class ShopTab extends StatefulWidget {
   const ShopTab({super.key});
@@ -133,16 +134,41 @@ Future<void> _saveShopData() async {
     print(_databaseName);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Profile Toko',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+  title: const Text(
+    'Profile Toko',
+    style: TextStyle(
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    ),
+  ),
+  backgroundColor: const Color(0xFFE76F51),
+  actions: [
+    PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: Colors.white),
+      onSelected: (value) {
+        if (value == 'settings') {
+          // Navigasi ke halaman settings atau tampilkan dialog, dsb
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Settingspage(), // Ganti dengan halaman kamu
+            ),
+          );
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem<String>(
+            value: 'settings',
+            child: Text('Settings'),
           ),
-        ),
-        backgroundColor: const Color(0xFFE76F51),
-      ),
+        ];
+      },
+    ),
+  ],
+),
+
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

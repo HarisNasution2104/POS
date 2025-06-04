@@ -42,6 +42,13 @@ dependencies:
   fl_chart: ^0.71.0
   intl: ^0.20.2
   image_picker: ^1.1.2
+  mobile_scanner: ^7.0.0
+  flutter_bluetooth_printer: ^2.19.0
+  quickalert: ^1.1.0
+  permission_handler: ^12.0.0+1
+  lottie: ^2.7.0
+
+
 
 
 dev_dependencies:
@@ -67,8 +74,11 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/Lottiefiles/Intro1.json
+    - assets/Lottiefiles/Intro2.json
+    - assets/Lottiefiles/Intro3.json
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

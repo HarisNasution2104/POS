@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'Register.dart';
-import 'login.dart';  // Pastikan file ini ada dan diimpor
-import 'home.dart';   // Pastikan file ini ada dan diimpor
+import 'login.dart';
+import 'home.dart';
+import 'IntroScreen.dart'; // <- Tambahkan file ini
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized(); // Pastikan ini ada
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,39 +17,52 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'POS System',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: FutureBuilder<bool>(
-        future: _checkLoginStatus(),
+      home: FutureBuilder<Map<String, bool>>(
+        future: _checkAppStatus(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
+            return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           } else if (snapshot.hasData) {
-            if (snapshot.data == true) {
-              return HomePage();
+            final seenIntro = snapshot.data!['seenIntro'] ?? false;
+            final isLoggedIn = snapshot.data!['isLoggedIn'] ?? false;
+
+            if (!seenIntro) {
+              return const IntroScreen(); // Muncul hanya pertama kali
+            } else if (isLoggedIn) {
+              return const HomePage();
             } else {
-              return LoginPage();
+              return const LoginPage();
             }
           } else {
-            return Scaffold(
-              body: Center(child: Text('Error loading login status')),
+            return const Scaffold(
+              body: Center(child: Text('Error loading app status')),
             );
           }
         },
       ),
       routes: {
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegisterPage(),
-        '/home': (context) => HomePage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => const HomePage(),
       },
     );
   }
 
-  Future<bool> _checkLoginStatus() async {
+  // Cek apakah intro sudah dilihat & user sudah login
+  Future<Map<String, bool>> _checkAppStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('is_logged_in') ?? false;
+    await prefs.setBool('seenIntro', false);
+    final seenIntro = prefs.getBool('seenIntro') ?? false;
+    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+    return {
+      'seenIntro': seenIntro,
+      'isLoggedIn': isLoggedIn,
+    };
   }
 }
