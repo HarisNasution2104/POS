@@ -27,7 +27,7 @@ class _IntroScreenState extends State<IntroScreen> {
     },
     {
       "image": "assets/Lottiefiles/Intro3.json",
-      "title": "Generate Reports",
+      "title": "Finances",
       "desc": "Take control of your store's finances.",
     },
   ];
@@ -104,12 +104,12 @@ class _IntroScreenState extends State<IntroScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _finishIntro,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFE76F51),
+                        ),
                         child: const Text(
                           "Get Started",
                           style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFE76F51),
                         ),
                       ),
                     )

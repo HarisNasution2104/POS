@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'Add_barang.dart';
 
 class Barang {
@@ -28,13 +29,14 @@ class _Barang_pageState extends State<Barang_page> {
       kode: 'B${index + 1}',
       nama: 'Barang ${index + 1}',
       harga: 100000 + (index * 10000),
-      stok: (index + 1) % 10 == 0
-          ? 100
-          : (index + 1) % 5 == 0
+      stok:
+          (index + 1) % 10 == 0
+              ? 100
+              : (index + 1) % 5 == 0
               ? 50
               : (index + 1) % 3 == 0
-                  ? 30
-                  : 10,
+              ? 30
+              : 10,
     );
   });
 
@@ -57,10 +59,11 @@ class _Barang_pageState extends State<Barang_page> {
       if (searchQuery.isEmpty) {
         displayedBarang = List.from(allBarang);
       } else {
-        displayedBarang = allBarang.where((barang) {
-          return barang.nama.toLowerCase().contains(searchQuery) ||
-              barang.kode.toLowerCase().contains(searchQuery);
-        }).toList();
+        displayedBarang =
+            allBarang.where((barang) {
+              return barang.nama.toLowerCase().contains(searchQuery) ||
+                  barang.kode.toLowerCase().contains(searchQuery);
+            }).toList();
       }
     });
   }
@@ -78,38 +81,25 @@ class _Barang_pageState extends State<Barang_page> {
     });
   }
 
-  void _showSortFilterOptions() {
-    showModalBottomSheet(
+  void _showSortFilterOptions(BuildContext context, Offset offset) async {
+    final selected = await showMenu<String>(
       context: context,
-      builder: (_) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Sort by Nama'),
-              onTap: () {
-                _sortBarang('nama');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Sort by Harga'),
-              onTap: () {
-                _sortBarang('harga');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Sort by Stok'),
-              onTap: () {
-                _sortBarang('stok');
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + 1,
+        offset.dy + 1,
+      ),
+      items: [
+        const PopupMenuItem(value: 'nama', child: Text('Sort by Nama')),
+        const PopupMenuItem(value: 'harga', child: Text('Sort by Harga')),
+        const PopupMenuItem(value: 'stok', child: Text('Sort by Stok')),
+      ],
     );
+
+    if (selected != null) {
+      _sortBarang(selected);
+    }
   }
 
   void _navigateToAddBarang() {
@@ -138,6 +128,182 @@ class _Barang_pageState extends State<Barang_page> {
     }
   }
 
+  void _showStokNotifications(BuildContext context) {
+    final habis = allBarang.where((b) => b.stok == 0).toList();
+    final menipis = allBarang.where((b) => b.stok > 0 && b.stok < 10).toList();
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: 320,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'NOTIFIKASI',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Tombol Stok Habis
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          color: Color(0xFFE76F51),
+                          width: 2,
+                        ),
+                        backgroundColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed:
+                          habis.isEmpty
+                              ? null
+                              : () {
+                                Navigator.pop(context);
+                                _filterStokHabis();
+                              },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  habis.isEmpty ? Colors.grey : Colors.red,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Stok Habis: ${habis.length} Barang',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    habis.isEmpty
+                                        ? Colors.grey
+                                        : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Tombol Stok Menipis
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          color: Color(0xFFE76F51),
+                          width: 2,
+                        ),
+                        backgroundColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed:
+                          menipis.isEmpty
+                              ? null
+                              : () {
+                                Navigator.pop(context);
+                                _filterStokMenipis();
+                              },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  menipis.isEmpty
+                                      ? Colors.grey
+                                      : Colors.orange.shade700,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Stok Menipis: ${menipis.length} Barang',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    menipis.isEmpty
+                                        ? Colors.grey
+                                        : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  const Divider(height: 1, color: Colors.grey),
+                  Align(
+                    alignment: Alignment.center,
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _filterStokHabis() {
+    setState(() {
+      displayedBarang = allBarang.where((b) => b.stok == 0).toList();
+      _isSelecting = false;
+      _selectedBarang.clear();
+    });
+  }
+
+  void _filterStokMenipis() {
+    setState(() {
+      displayedBarang =
+          allBarang.where((b) => b.stok > 0 && b.stok < 10).toList();
+      _isSelecting = false;
+      _selectedBarang.clear();
+    });
+  }
+
   void _cancelSelectMode() {
     setState(() {
       _isSelecting = false;
@@ -158,15 +324,100 @@ class _Barang_pageState extends State<Barang_page> {
     );
   }
 
+ void _showOptionsAtPosition(BuildContext context, Offset offset) async {
+    // ignore: unused_local_variable
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + 1,
+        offset.dy + 1,
+      ),
+    items: [
+      const PopupMenuItem(
+        value: 'import',
+        child: Row(
+          children: [
+            Icon(Icons.file_upload, color: Colors.black54),
+            SizedBox(width: 10),
+            Text('Import'),
+          ],
+        ),
+      ),
+      const PopupMenuItem(
+        value: 'export',
+        child: Row(
+          children: [
+            Icon(Icons.file_download, color: Colors.black54),
+            SizedBox(width: 10),
+            Text('Export'),
+          ],
+        ),
+      ),
+      const PopupMenuItem(
+        value: 'settings',
+        child: Row(
+          children: [
+            Icon(Icons.settings, color: Colors.black54),
+            SizedBox(width: 10),
+            Text('Pengaturan'),
+          ],
+        ),
+      ),
+      const PopupMenuItem(
+        value: 'print',
+        child: Row(
+          children: [
+            Icon(Icons.print, color: Colors.black54),
+            SizedBox(width: 10),
+            Text('Cetak Stok'),
+          ],
+        ),
+      ),
+    ],
+  ).then((value) {
+    if (value == null) return;
+
+    switch (value) {
+      case 'import':
+        _doImport();
+        break;
+      case 'export':
+        _doExport();
+        break;
+      case 'print':
+        _printStock();
+        break;
+    }
+  });
+}
+
+  void _doImport() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Fungsi Import dijalankan')),
+    );
+  }
+
+  void _doExport() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Fungsi Export dijalankan')),
+    );
+  }
+
+
+  void _printStock() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Fungsi Cetak Stok dijalankan')),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
         title: Text(
-          _isSelecting
-              ? '${_selectedBarang.length} dipilih'
-              : 'Data Barang',
+          _isSelecting ? '${_selectedBarang.length} dipilih' : 'Data Barang',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -183,7 +434,15 @@ class _Barang_pageState extends State<Barang_page> {
           else
             IconButton(
               icon: const Icon(Icons.more_vert_outlined, color: Colors.white),
-              onPressed: _showSortFilterOptions,
+                  onPressed: () async {
+                    final RenderBox button =
+                        context.findRenderObject() as RenderBox;
+                    final Offset offset = button.localToGlobal(Offset.zero);
+                    _showOptionsAtPosition(
+                      context,
+                      Offset(offset.dx + 300, offset.dy + 65),
+                    );
+                  },
             ),
         ],
         backgroundColor: const Color(0xFFE76F51),
@@ -196,18 +455,41 @@ class _Barang_pageState extends State<Barang_page> {
               children: [
                 IconButton(
                   icon: const Icon(
-                    Icons.filter_list,
+                    FontAwesomeIcons.arrowUpShortWide,
                     color: Color(0xFFE76F51),
                   ),
-                  onPressed: _showSortFilterOptions,
+                  onPressed: () async {
+                    final RenderBox button =
+                        context.findRenderObject() as RenderBox;
+                    final Offset offset = button.localToGlobal(Offset.zero);
+                    _showSortFilterOptions(
+                      context,
+                      Offset(offset.dx + 35, offset.dy + 125),
+                    );
+                  },
                 ),
                 Expanded(
+                  flex: 5,
                   child: TextField(
+                    style: const TextStyle(fontSize: 10),
                     onChanged: _searchBarang,
                     decoration: InputDecoration(
+                      isDense: true,
                       labelText: 'Cari Barang...',
                       labelStyle: const TextStyle(color: Color(0xFFE76F51)),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFFE76F51)),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Color(0xFFE76F51),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(
+                          FontAwesomeIcons.barcode,
+                          color: Color(0xFFE76F51),
+                        ),
+                        onPressed: () {
+                          // Tambahkan aksi scan barcode di sini
+                        },
+                      ),
                       border: OutlineInputBorder(
                         borderSide: const BorderSide(color: Color(0xFFE76F51)),
                         borderRadius: BorderRadius.circular(30),
@@ -223,6 +505,14 @@ class _Barang_pageState extends State<Barang_page> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(
+                    FontAwesomeIcons.bell,
+                    color: Color(0xFFE76F51),
+                  ),
+                  onPressed: () => _showStokNotifications(context),
+                ),
               ],
             ),
           ),
@@ -237,7 +527,10 @@ class _Barang_pageState extends State<Barang_page> {
                   onTap: () => _toggleSelect(barang),
                   child: Card(
                     color: isSelected ? Colors.orange.shade100 : null,
-                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
@@ -255,7 +548,10 @@ class _Barang_pageState extends State<Barang_page> {
                               ),
                               Container(
                                 width: 45,
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFE76F51),
@@ -275,8 +571,14 @@ class _Barang_pageState extends State<Barang_page> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(barang.kode, style: const TextStyle(color: Colors.grey)),
-                              Text('Rp${barang.harga}', style: const TextStyle(color: Colors.grey)),
+                              Text(
+                                barang.kode,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              Text(
+                                'Rp${barang.harga}',
+                                style: const TextStyle(color: Colors.grey),
+                              ),
                             ],
                           ),
                         ],
@@ -289,17 +591,20 @@ class _Barang_pageState extends State<Barang_page> {
           ),
         ],
       ),
-      floatingActionButton: _isSelecting && _selectedBarang.isNotEmpty
-          ? FloatingActionButton(
-              onPressed: _hapusBarangYangDipilih,
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.delete, color: Colors.white),
-            )
-          : FloatingActionButton(
-              onPressed: _navigateToAddBarang,
-              backgroundColor: const Color(0xFFE76F51),
-              child: const Icon(Icons.add, color: Colors.white),
-            ),
+      floatingActionButton:
+          _isSelecting && _selectedBarang.isNotEmpty
+              ? FloatingActionButton(
+                onPressed: _hapusBarangYangDipilih,
+                backgroundColor: Colors.red,
+                shape: const CircleBorder(), // memastikan bentuk bulat
+                child: const Icon(Icons.delete, color: Colors.white),
+              )
+              : FloatingActionButton(
+                onPressed: _navigateToAddBarang,
+                backgroundColor: const Color(0xFFE76F51),
+                shape: const CircleBorder(), // memastikan bentuk bulat
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
     );
   }
 }

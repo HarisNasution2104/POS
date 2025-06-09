@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'CheckoutPage.dart';
 import 'package:intl/intl.dart';
+import 'BarcodeScannerPage.dart'; // Scanner fullscreen yang kita buat
 
 class SalesPage extends StatefulWidget {
   const SalesPage({super.key});
@@ -14,42 +15,52 @@ class _SalesPageState extends State<SalesPage> {
   final List<Map<String, dynamic>> barangList = [];
   int totalBarangDitambahkan = 0;
   List<Map<String, dynamic>> barangDitambahkan = [];
+
   String _searchQuery = '';
-  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _generateDummyBarang(); // generate barang lokal
-  }
-
-  void _generateDummyBarang() {
-    setState(() {
-      barangList.clear();
-      for (int i = 1; i <= 20; i++) {
-        barangList.add({
-          'id': '$i',
-          'shop_id': '1',
-          'name': 'Barang $i',
-          'code': 'BRG$i',
-          'quantity': i * 5,
-          'price_buy': 10000,
-          'price_sell': 15000 + (i * 1000),
-          'price': 15000 + (i * 1000),
-          'image_path': '',
-        });
-      }
+    _generateDummyBarang();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _generateDummyBarang() {
+    barangList.clear();
+    for (int i = 1; i <= 20; i++) {
+      barangList.add({
+        'id': '$i',
+        'shop_id': '1',
+        'name': 'Barang $i',
+        'code': 'BRG$i',
+        'quantity': i * 5,
+        'price_buy': 10000,
+        'price_sell': 15000 + (i * 1000),
+        'price': 15000 + (i * 1000),
+        'image_path': '',
+      });
+    }
+  }
+
   List<Map<String, dynamic>> get filteredBarangList {
-    return barangList
-        .where((item) =>
-            item['name']
-                ?.toLowerCase()
-                .contains(_searchQuery.toLowerCase()) ??
-            false)
-        .toList();
+    if (_searchQuery.isEmpty) return barangList;
+    return barangList.where((item) {
+      final nameLower = (item['name'] ?? '').toString().toLowerCase();
+      final codeLower = (item['code'] ?? '').toString().toLowerCase();
+      final queryLower = _searchQuery.toLowerCase();
+      return nameLower.contains(queryLower) || codeLower.contains(queryLower);
+    }).toList();
   }
 
   int _getBarangCount(String code) {
@@ -62,8 +73,7 @@ class _SalesPageState extends State<SalesPage> {
 
   void _tambahBarangKePesanan(Map<String, dynamic> data) {
     setState(() {
-      final index =
-          barangDitambahkan.indexWhere((b) => b['code'] == data['code']);
+      final index = barangDitambahkan.indexWhere((b) => b['code'] == data['code']);
       if (index != -1) {
         barangDitambahkan[index]['quantity'] += 1;
       } else {
@@ -76,112 +86,188 @@ class _SalesPageState extends State<SalesPage> {
     });
   }
 
+  Future<void> _openScanner() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BarcodeScannerPage()),
+    );
+
+    if (result != null && result is String && result.isNotEmpty) {
+      setState(() {
+        _searchQuery = result;
+        _searchController.text = result;  // update textfield biar keliatan hasil scan
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFormat =
         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final mainColor = const Color(0xFFE76F51); // warna utama
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange.shade900,
-        title: const Text('Penjualan', style: TextStyle(color: Colors.white)),
+        backgroundColor: mainColor,
+        title: const Text(
+          'Penjualan',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
+          tooltip: 'Kembali',
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Column(
-          children: [
-            Row(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.search, color: Colors.orange.shade700),
-                  onPressed: () {
-                    setState(() {
-                      _isSearching = !_isSearching;
-                      if (!_isSearching) _searchQuery = '';
-                    });
-                  },
-                ),
-                const SizedBox(width: 10),
-                if (_isSearching)
-                  Expanded(
-                    child: TextField(
-                      onChanged: (value) =>
-                          setState(() => _searchQuery = value),
-                      decoration: InputDecoration(
-                        hintText: 'Cari barang...',
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange.shade900),
-                          borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  flex: 5,
+                  child: TextField(
+                    controller: _searchController,
+                    style: const TextStyle(fontSize: 14),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Cari Barang...',
+                      labelStyle: TextStyle(color: mainColor),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: mainColor,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: FaIcon(
+                          FontAwesomeIcons.barcode,
+                          color: mainColor,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.orange.shade900, width: 2.0),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        onPressed: _openScanner,
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: mainColor),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: mainColor),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: mainColor),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(
+                    FontAwesomeIcons.bell,
+                    color: mainColor,
+                  ),
+                  onPressed: () {
+                    // Fungsi notifikasi stok bisa ditambah di sini
+                  },
+                ),
               ],
             ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredBarangList.length,
-                itemBuilder: (context, index) {
-                  final data = filteredBarangList[index];
-                  final stockQuantity = data['quantity'] ?? 0;
-                  final price = double.parse(data['price_sell'].toString());
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredBarangList.length,
+              itemBuilder: (context, index) {
+                final data = filteredBarangList[index];
+                final stockQuantity = data['quantity'] ?? 0;
+                final price = double.parse(data['price_sell'].toString());
 
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.grey.shade200,
-                      child: Text(
-                        data['name'].substring(0, 2).toUpperCase(),
-                        style: const TextStyle(color: Colors.black),
+                final isSelected = _getBarangCount(data['code']) > 0;
+
+                return GestureDetector(
+                  onTap: () => _tambahBarangKePesanan(data),
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    color: isSelected ? Colors.orange.shade100 : null,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data['name'],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                width: 45,
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: mainColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  stockQuantity > 99 ? '99+' : '$stockQuantity',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data['code'],
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              Text(
+                                '${stockQuantity} x ${currencyFormat.format(price)}',
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          if (isSelected)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: mainColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  'Jumlah: ${_getBarangCount(data['code'])}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    title: Text(data['name']),
-                    subtitle: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(data['code'],
-                            style: const TextStyle(color: Colors.grey)),
-                        Text('$stockQuantity x ${currencyFormat.format(price)}',
-                            style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                    trailing: _getBarangCount(data['code']) > 0
-                        ? Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade900,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              _getBarangCount(data['code']).toString(),
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
-                            ),
-                          )
-                        : null,
-                    onTap: () => _tambahBarangKePesanan(data),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: Stack(
         children: [
           FloatingActionButton(
-            backgroundColor: Colors.orange.shade900,
+            backgroundColor: mainColor,
             onPressed: () {
               Navigator.push(
                 context,

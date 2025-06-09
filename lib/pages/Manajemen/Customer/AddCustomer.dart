@@ -21,7 +21,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         title: const Text('Tambah Pelanggan',
-                  style: const TextStyle(
+                  style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,

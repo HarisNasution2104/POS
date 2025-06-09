@@ -48,7 +48,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         title: const Text('Tambah Supplier',
-                  style: const TextStyle(
+                  style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,

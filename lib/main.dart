@@ -57,7 +57,6 @@ class MyApp extends StatelessWidget {
   // Cek apakah intro sudah dilihat & user sudah login
   Future<Map<String, bool>> _checkAppStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('seenIntro', false);
     final seenIntro = prefs.getBool('seenIntro') ?? false;
     final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
     return {

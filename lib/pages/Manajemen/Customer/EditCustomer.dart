@@ -50,7 +50,7 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         title: const Text('Edit Pelanggan',
-                  style: const TextStyle(
+                  style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,

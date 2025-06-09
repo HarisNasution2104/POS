@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     Icon(FontAwesomeIcons.solidUser, size: 25, color: Colors.white,),
   ];
 
-  int index = 0;
+  int index = 2;
   String? userEmail;
 
   @override
@@ -81,13 +81,13 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return const ReportTab();
       case 2:
-        return const DashboardTab();
+        return const DashboardPage();
       case 3:
         return const ShopTab();
       case 4:
         return const ProfileTab();
       default:
-        return const DashboardTab();
+        return const DashboardPage();
     }
   }
 }

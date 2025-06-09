@@ -53,7 +53,7 @@ class _EditSupplierPageState extends State<EditSupplierPage> {
         backgroundColor: primaryColor,
         title: const Text(
           'Edit Supplier',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,

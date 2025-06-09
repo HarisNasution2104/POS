@@ -35,49 +35,54 @@ class _ShopTabState extends State<ShopTab> {
     _initialize();
   }
 
-  Future<void> _initialize() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _databaseName = prefs.getString('user_db_name');
+Future<void> _initialize() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  _databaseName = prefs.getString('user_db_name');
 
-    if (_databaseName == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Database belum ditemukan. Silakan login ulang.'),
-        ),
-      );
-      setState(() => _isLoading = false);
-      return;
-    }
-
-    await _loadShopData();
-  }
-
-  Future<void> _loadShopData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/get_shop.php?user_db_name=$_databaseName'),
-      );
-
-      if (response.statusCode == 200) {
-        final res = json.decode(response.body);
-        final data = res['toko'];
-        if (data != null && data['nama'] != null) {
-          _nameController.text = data['nama'];
-          _addressController.text = data['alamat'] ?? '';
-          _logoUrlController.text = data['logo_url'] ?? '';
-          _phoneController.text = data['telepon'] ?? '';
-          _descriptionController.text = data['deskripsi'] ?? '';
-          _emailController.text = data['email'] ?? ''; // Kosong karena tidak ada di response
-          _hoursController.text = data['jam'] ?? ''; // Kosong juga
-          _isDataExist = true;
-        }
-      }
-    } catch (e) {
-      print('Gagal ambil data toko: $e');
-    }
-
+  if (_databaseName == null) {
+    if (!mounted) return; // ✅
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Database belum ditemukan. Silakan login ulang.'),
+      ),
+    );
     setState(() => _isLoading = false);
+    return;
   }
+
+  await _loadShopData();
+}
+
+Future<void> _loadShopData() async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/get_shop.php?user_db_name=$_databaseName'),
+    );
+
+    if (!mounted) return; // ✅ Cegah setState setelah dispose
+
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      final data = res['toko'];
+      if (data != null && data['nama'] != null) {
+        _nameController.text = data['nama'];
+        _addressController.text = data['alamat'] ?? '';
+        _logoUrlController.text = data['logo_url'] ?? '';
+        _phoneController.text = data['telepon'] ?? '';
+        _descriptionController.text = data['deskripsi'] ?? '';
+        _emailController.text = data['email'] ?? '';
+        _hoursController.text = data['jam'] ?? '';
+        _isDataExist = true;
+      }
+    }
+  } catch (e) {
+    print('Gagal ambil data toko: $e');
+  }
+
+  if (!mounted) return; // ✅ Tambahkan ini juga
+  setState(() => _isLoading = false);
+}
+
 
 Future<void> _saveShopData() async {
   if (_databaseName == null) return;
@@ -131,7 +136,6 @@ Future<void> _saveShopData() async {
 
   @override
   Widget build(BuildContext context) {
-    print(_databaseName);
     return Scaffold(
       appBar: AppBar(
   title: const Text(
@@ -220,12 +224,7 @@ Future<void> _saveShopData() async {
                       'Deskripsi',
                       maxLines: 3,
                     ),
-                    const SizedBox(height: 20),
 
-                    _buildTextField(_hoursController, 'Jam Operasional'),
-                    const SizedBox(height: 20),
-
-                    _buildTextField(_logoUrlController, 'Logo URL'),
                     const SizedBox(height: 30),
 
                     ElevatedButton.icon(

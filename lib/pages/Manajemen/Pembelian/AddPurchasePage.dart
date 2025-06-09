@@ -124,7 +124,7 @@ class _AddPurchasePageState extends State<AddPurchasePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tambah Pembelian',
-                  style: const TextStyle(
+                  style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -202,7 +202,7 @@ class _AddPurchasePageState extends State<AddPurchasePage> {
                     });
                   },
                 );
-              }).toList(),
+              }),
 
               const SizedBox(height: 16),
 
