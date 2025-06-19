@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pos4/Constans.dart';
+import 'package:pos4/pages/Report/LaporanPenjualan.dart';
 
 class ReportTab extends StatelessWidget {
   const ReportTab({super.key});
@@ -7,17 +9,7 @@ class ReportTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Laporan',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFFE76F51),
-      ),
+appBar: customAppBar('Report',centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -26,7 +18,10 @@ class ReportTab extends StatelessWidget {
             title: 'Laporan Penjualan',
             subtitle: 'Kelola data barang',
             onTap: () {
-              // Navigasi ke halaman Barang
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LaporanPenjualan()),
+              );
             },
           ),
           _buildMenuItem(

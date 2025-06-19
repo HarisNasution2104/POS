@@ -30,7 +30,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -47,7 +46,8 @@ dependencies:
   quickalert: ^1.1.0
   permission_handler: ^12.0.0+1
   lottie: ^2.7.0
-
+  syncfusion_flutter_charts: ^29.2.11
+  syncfusion_flutter_datepicker: ^29.2.11
 
 
 
@@ -79,7 +79,7 @@ flutter:
     - assets/Lottiefiles/Intro1.json
     - assets/Lottiefiles/Intro2.json
     - assets/Lottiefiles/Intro3.json
-
+    - assets/images/default_avatar.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

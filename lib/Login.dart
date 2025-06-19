@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'Home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Constans.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -100,9 +101,9 @@ class _LoginPageState extends State<LoginPage> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   colors: [
-                    Colors.orange.shade900,
-                    Colors.orange.shade800,
-                    Colors.orange.shade400,
+                    Color(0xFFE76F51),
+                    Color.fromARGB(255, 233, 100, 67),
+                    Color.fromARGB(255, 235, 91, 55),
                   ],
                 ),
               ),
@@ -208,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: isLoading ? null : login,
                                 height: 50,
                                 minWidth: double.infinity,
-                                color: Colors.orange[900],
+                                color: mainColor.withOpacity(0.8),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50),
                                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pos4/Constans.dart';
 import 'Manajemen/Barang/Barang.dart';
 import 'Manajemen/Kategori/Kategori.dart';
 import 'Manajemen/Stok/StockPage.dart';
@@ -20,17 +21,7 @@ class _ServiceTabState extends State<ServiceTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Manajemen',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFFE76F51),
-      ),
+appBar:  customAppBar('Manajemen',centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -41,7 +32,7 @@ class _ServiceTabState extends State<ServiceTab> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Barang_page()),
+                MaterialPageRoute(builder: (context) => BarangPage()),
               );
             },
           ),
@@ -85,7 +76,7 @@ class _ServiceTabState extends State<ServiceTab> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PurchasePage()),
+                MaterialPageRoute(builder: (context) => const PembelianPage()),
               );
             },
           ),

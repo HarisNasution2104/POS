@@ -1,268 +1,370 @@
 import 'package:flutter/material.dart';
-import 'AddPurchasePage.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import 'CheckoutPembelianPage.dart';
+import '../BarcodeScannerPage.dart';
 
-class Purchase {
-  final String kode;
-  final String supplier;
-  final DateTime tanggal;
-  final int totalHarga;
-
-  Purchase({
-    required this.kode,
-    required this.supplier,
-    required this.tanggal,
-    required this.totalHarga,
-  });
-}
-
-class PurchasePage extends StatefulWidget {
-  const PurchasePage({super.key});
+class PembelianPage extends StatefulWidget {
+  const PembelianPage({super.key});
 
   @override
-  State<PurchasePage> createState() => _PurchasePageState();
+  State<PembelianPage> createState() => _PembelianPageState();
 }
 
-class _PurchasePageState extends State<PurchasePage> {
-  final Color primaryColor = const Color(0xFFE76F51);
+class _PembelianPageState extends State<PembelianPage>
+    with TickerProviderStateMixin {
+  final List<Map<String, dynamic>> barangList = [];
+  List<Map<String, dynamic>> barangDitambahkan = [];
+  int totalBarangDitambahkan = 0;
 
-  List<Purchase> allPurchases = List.generate(30, (index) {
-    return Purchase(
-      kode: 'P${1000 + index}',
-      supplier: 'Supplier ${index + 1}',
-      tanggal: DateTime.now().subtract(Duration(days: index * 2)),
-      totalHarga: 500000 + (index * 100000),
-    );
-  });
-
-  List<Purchase> displayedPurchases = [];
-  String searchQuery = '';
-  final Set<Purchase> selectedPurchases = {};
-  bool isSelecting = false;
+  String _searchQuery = '';
+  String _sortBy = 'nama';
+  final TextEditingController _searchController = TextEditingController();
+  final GlobalKey _cartKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _searchPurchase('');
-  }
-
-  void _searchPurchase(String query) {
-    setState(() {
-      searchQuery = query.toLowerCase();
-      if (query.isEmpty) {
-        displayedPurchases = List.from(allPurchases);
-      } else {
-        displayedPurchases =
-            allPurchases.where((p) {
-              return p.kode.toLowerCase().contains(searchQuery) ||
-                  p.supplier.toLowerCase().contains(searchQuery);
-            }).toList();
-      }
-    });
-  }
-
-  void _startSelectMode(Purchase purchase) {
-    setState(() {
-      isSelecting = true;
-      selectedPurchases.add(purchase);
-    });
-  }
-
-  void _toggleSelect(Purchase purchase) {
-    if (isSelecting) {
+    _generateDummyBarang();
+    _searchController.addListener(() {
       setState(() {
-        if (selectedPurchases.contains(purchase)) {
-          selectedPurchases.remove(purchase);
-        } else {
-          selectedPurchases.add(purchase);
-        }
+        _searchQuery = _searchController.text;
+      });
+    });
+  }
+
+  void _generateDummyBarang() {
+    barangList.clear();
+    for (int i = 1; i <= 20; i++) {
+      barangList.add({
+        'id': '$i',
+        'shop_id': '1',
+        'name': 'Barang $i',
+        'code': 'BRG$i',
+        'quantity': i * 5,
+        'price_buy': 10000 + (i * 500), // Harga beli berbeda
+        'price_sell': 15000 + (i * 1000),
+        'price': 15000 + (i * 1000),
       });
     }
   }
 
-  void _cancelSelectMode() {
+  List<Map<String, dynamic>> get filteredBarangList {
+    List<Map<String, dynamic>> list =
+        barangList.where((item) {
+          final name = item['name'].toString().toLowerCase();
+          final code = item['code'].toString().toLowerCase();
+          final query = _searchQuery.toLowerCase();
+          return name.contains(query) || code.contains(query);
+        }).toList();
+
+    list.sort((a, b) {
+      switch (_sortBy) {
+        case 'harga':
+          return (a['price_buy'] as int).compareTo(
+            b['price_buy'] as int,
+          ); // Sort by harga beli
+        case 'stok':
+          return (a['quantity'] as int).compareTo(b['quantity'] as int);
+        case 'nama':
+        default:
+          return (a['name'] as String).compareTo(b['name'] as String);
+      }
+    });
+
+    return list;
+  }
+
+  void _tambahBarangKePesanan(Map<String, dynamic> data) {
     setState(() {
-      isSelecting = false;
-      selectedPurchases.clear();
+      final index = barangDitambahkan.indexWhere(
+        (b) => b['code'] == data['code'],
+      );
+      if (index != -1) {
+        barangDitambahkan[index]['quantity'] += 1;
+      } else {
+        barangDitambahkan.add({...data, 'quantity': 1});
+      }
+      totalBarangDitambahkan = barangDitambahkan.fold(
+        0,
+        (sum, item) => sum + (item['quantity'] as int),
+      );
     });
   }
 
-  void _hapusPurchaseYangDipilih() {
-    setState(() {
-      allPurchases.removeWhere((p) => selectedPurchases.contains(p));
-      _searchPurchase(searchQuery);
-      selectedPurchases.clear();
-      isSelecting = false;
-    });
+  void _runParabolicAnimation(String namaBarang) {
+    final overlay = Overlay.of(context);
+    final RenderBox targetBox =
+        _cartKey.currentContext!.findRenderObject() as RenderBox;
+    final Size screenSize = MediaQuery.of(context).size;
+    final start = Offset(screenSize.width / 2, screenSize.height / 2);
+    final end = targetBox.localToGlobal(Offset.zero);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Data pembelian yang dipilih telah dihapus'),
-      ),
+    late OverlayEntry entry;
+    AnimationController controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
     );
+
+    Animation<double> animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOut,
+    );
+
+    final String inisial =
+        namaBarang.isNotEmpty ? namaBarang[0].toUpperCase() : '?';
+
+    entry = OverlayEntry(
+      builder: (_) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (_, __) {
+            final t = animation.value;
+            final x = start.dx + (end.dx - start.dx) * t;
+            final y = start.dy + (end.dy - start.dy) * t - 100 * t * (1 - t);
+
+            return Positioned(
+              left: x,
+              top: y,
+              child: CircleAvatar(
+                backgroundColor: Color(
+                  0xFFE76F51,
+                ), // warna hijau untuk pembelian
+                radius: 16,
+                child: Text(
+                  inisial,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    overlay.insert(entry);
+    controller.forward().whenComplete(() {
+      entry.remove();
+      controller.dispose();
+    });
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+  void _showSortFilterOptions(BuildContext context, Offset offset) async {
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + 1,
+        offset.dy + 1,
+      ),
+      items: const [
+        PopupMenuItem(value: 'nama', child: Text('Sort by Nama')),
+        PopupMenuItem(value: 'harga', child: Text('Sort by Harga Beli')),
+        PopupMenuItem(value: 'stok', child: Text('Sort by Stok')),
+      ],
+    );
+
+    if (selected != null) {
+      setState(() {
+        _sortBy = selected;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormat = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    const Color mainColor = const Color(0xFFE76F51);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          isSelecting
-              ? '${selectedPurchases.length} dipilih'
-              : 'Daftar Pembelian',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+        backgroundColor: mainColor,
+        title: const Text('Pembelian', style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        actions: [
-          if (isSelecting)
-            IconButton(
-              icon: const Icon(Icons.check, color: Colors.white),
-              onPressed: _cancelSelectMode,
-              tooltip: 'Selesai',
-            ),
-        ],
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextField(
-              onChanged: _searchPurchase,
-              decoration: InputDecoration(
-                labelText: 'Cari Pembelian...',
-                labelStyle: TextStyle(color: primaryColor),
-                prefixIcon: Icon(Icons.search, color: primaryColor),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: primaryColor),
-                  borderRadius: BorderRadius.circular(30),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    FontAwesomeIcons.arrowUpShortWide,
+                    color: mainColor,
+                  ),
+                  onPressed: () {
+                    RenderBox renderBox =
+                        context.findRenderObject() as RenderBox;
+                    Offset offset = renderBox.localToGlobal(Offset.zero);
+                    _showSortFilterOptions(
+                      context,
+                      Offset(offset.dx + 35, offset.dy + 125),
+                    );
+                  },
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: primaryColor),
-                  borderRadius: BorderRadius.circular(30),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Cari Barang...',
+                        prefixIcon: const Icon(Icons.search, color: mainColor),
+                        suffixIcon: IconButton(
+                          icon: const FaIcon(
+                            FontAwesomeIcons.barcode,
+                            color: mainColor,
+                          ),
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => const BarcodeScannerPage(),
+                              ),
+                            );
+                            if (result != null) {
+                              _searchController.text = result;
+                            }
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderSide: const BorderSide(color: mainColor),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: primaryColor),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
+              ],
             ),
           ),
           Expanded(
-            child:
-                displayedPurchases.isEmpty
-                    ? const Center(child: Text('Belum ada pembelian'))
-                    : ListView.builder(
-                      itemCount: displayedPurchases.length,
-                      itemBuilder: (context, index) {
-                        final purchase = displayedPurchases[index];
-                        final isSelected = selectedPurchases.contains(purchase);
+            child: ListView.builder(
+              itemCount: filteredBarangList.length,
+              itemBuilder: (context, index) {
+                final data = filteredBarangList[index];
+                final price = data['price_buy'] as int; // harga beli
+                final stock = data['quantity'] as int;
+final isDitambahkan = barangDitambahkan.any((item) => item['code'] == data['code']);
+                return GestureDetector(
+  onTap: () {
+    _runParabolicAnimation(data['name']);
+    _tambahBarangKePesanan(data); // tetap nambah quantity kalau sudah ada
+  },
 
-                        return GestureDetector(
-                          onLongPress: () => _startSelectMode(purchase),
-                          onTap:
-                              () =>
-                                  isSelecting
-                                      ? _toggleSelect(purchase)
-                                      : null, // Optional: Navigate to detail page
-                          child: Card(
-                            color: isSelected ? Colors.orange.shade100 : null,
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          purchase.supplier,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          purchase.kode,
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        Text(
-                                          _formatDate(purchase.tanggal),
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Rp${purchase.totalHarga}',
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  CircleAvatar(
-                                    backgroundColor: primaryColor,
-                                    child: const Icon(
-                                      Icons.receipt_long,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                  child: Card(
+color: isDitambahkan ? Colors.orange[100] : Colors.white,
+
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
                     ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data['name'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: mainColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '$stock',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data['code'],
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              Text(
+                                currencyFormat.format(price),
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
-      floatingActionButton:
-          isSelecting && selectedPurchases.isNotEmpty
-              ? FloatingActionButton(
-                onPressed: _hapusPurchaseYangDipilih,
-                backgroundColor: Colors.red,
-                child: const Icon(Icons.delete, color: Colors.white),
-              )
-              : FloatingActionButton(
-                onPressed: () async {
-                  final newPurchase = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddPurchasePage(),
-                    ),
-                  );
-                  if (newPurchase != null && newPurchase is Purchase) {
-                    setState(() {
-                      allPurchases.add(newPurchase);
-                      _searchPurchase(searchQuery);
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Pembelian ditambahkan!')),
-                    );
-                  }
-                },
-                backgroundColor: primaryColor,
-                child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Stack(
+        children: [
+          FloatingActionButton(
+            key: _cartKey,
+            backgroundColor: mainColor,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => CheckoutPembelianPage(
+                        barangDitambahkan: barangDitambahkan,
+                      ),
+                ),
+              );
+            },
+            child: const Icon(
+              FontAwesomeIcons.cartShopping,
+              color: Colors.white,
+            ),
+          ),
+          if (totalBarangDitambahkan > 0)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  totalBarangDitambahkan.toString(),
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
               ),
+            ),
+        ],
+      ),
     );
   }
 }

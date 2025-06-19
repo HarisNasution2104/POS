@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:quickalert/quickalert.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Profile/ChangePassword.dart';
+import '../Constans.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -101,134 +102,176 @@ class _ProfileTabState extends State<ProfileTab> {
     }
   }
 
+Future<void> logout() async {
+  QuickAlert.show(
+    context: context,
+    type: QuickAlertType.confirm,
+    title: 'Logout',
+    text: 'Apakah kamu yakin ingin keluar?',
+    confirmBtnText: 'Ya',
+    cancelBtnText: 'Batal',
+    confirmBtnColor: Colors.red,
+    onConfirmBtnTap: () async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Tutup dialog
+      Navigator.pushReplacementNamed(context, '/login');
+    },
+  );
+}
+
+
   void _showMessage(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
-
-  Future<void> logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFFE76F51),
-        actions: [
-          IconButton(
-            icon: const Icon(FontAwesomeIcons.signOut, color: Colors.white),
-            tooltip: 'Logout',
-            onPressed: logout,
-          ),
-        ],
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.grey,
-                    child: Icon(Icons.person, size: 80, color: Colors.white),
-                  ),
-                  const SizedBox(height: 30),
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nama',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+      appBar: customAppBar('Profile', centerTitle: true),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Card Profil Pengguna
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFF4A261),
-                          width: 2,
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundImage:
+                                  userData?['profile_picture'] != null
+                                      ? NetworkImage(
+                                        userData!['profile_picture'],
+                                      )
+                                      : const AssetImage(
+                                            'assets/images/default_avatar.png',
+                                          )
+                                          as ImageProvider,
+                            ),
+
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  userData?['name'] ?? 'Nama Pengguna',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  userData?['email'] ?? 'email@example.com',
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                // Aksi untuk mengedit profil
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    // Card Pengaturan
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFF4A261),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton.icon(
-                    onPressed: updateUserData,
-                    icon: const Icon(Icons.save, color: Colors.white),
-                    label: const Text(
-                      'Simpan Perubahan',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2A9D8F),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ChangePasswordPage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.lock, color: Colors.white),
-                    label: const Text(
-                      'Ubah Kata Sandi',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF4A261),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                      elevation: 4,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.account_circle),
+                            title: const Text('My Account'),
+                            onTap: () {
+                              // Aksi untuk My Account
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.face),
+                            title: const Text('Face ID'),
+                            onTap: () {
+                              // Aksi untuk Face ID
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.notifications),
+                            title: const Text('Notifications'),
+                            onTap: () {
+                              // Aksi untuk Notifications
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.lock),
+                            title: Text('Privacy & Security'),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => const ChangePasswordPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.logout),
+                            title: Text('Logout'),
+                            onTap: logout,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                    Text('More'),
+                    SizedBox(height: 5,),
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.account_circle),
+                            title: const Text('Help'),
+                            onTap: () {
+                              // Aksi untuk My Account
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.face),
+                            title: const Text('About'),
+                            onTap: () {
+                              // Aksi untuk Face ID
+                            },
+                          ),
+
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
     );
   }
 }

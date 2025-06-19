@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'Register.dart';
 import 'login.dart';
 import 'home.dart';
 import 'IntroScreen.dart'; // <- Tambahkan file ini
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Pastikan ini ada
+  await initializeDateFormatting('id_ID', null);
+  Intl.defaultLocale = 'id_ID'; // tambahkan ini
   runApp(const MyApp());
 }
 

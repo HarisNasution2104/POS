@@ -259,7 +259,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   final newCustomer = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddCustomerPage(),
+                      builder: (context) => AddCustomerPage(),
                     ),
                   );
 

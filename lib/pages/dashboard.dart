@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:pos4/Constans.dart';
 import 'TransaksiChart.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -58,13 +59,7 @@ class _DashboardPageState extends State<DashboardPage> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFE76F51),
-        title: const Text('Dashboard',    style: TextStyle(
-      fontSize: 28,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,)),
-      ),
+      appBar: customAppBar('Dashboard',centerTitle: true),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

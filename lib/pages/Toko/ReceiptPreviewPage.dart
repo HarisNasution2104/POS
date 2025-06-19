@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_printer/flutter_bluetooth_printer_library.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReceiptPreviewPage extends StatefulWidget {
   const ReceiptPreviewPage({super.key});
@@ -10,7 +11,65 @@ class ReceiptPreviewPage extends StatefulWidget {
 
 class _ReceiptPreviewPageState extends State<ReceiptPreviewPage> {
   ReceiptController? controller;
-  String? address;
+  String? savedAddress;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedPrinter();
+  }
+
+  Future<void> _loadSavedPrinter() async {
+    final prefs = await SharedPreferences.getInstance();
+    final addr = prefs.getString('saved_printer_address');
+    if (addr != null) {
+      setState(() {
+        savedAddress = addr;
+      });
+    }
+  }
+
+  Future<void> _savePrinter(String address) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_printer_address', address);
+    setState(() {
+      savedAddress = address;
+    });
+  }
+
+  Future<void> _printReceipt() async {
+    if (savedAddress == null) {
+      // Belum ada printer disimpan, minta pilih dulu
+      final device = await FlutterBluetoothPrinter.selectDevice(context);
+      if (!mounted) return;
+      if (device != null) {
+        await _savePrinter(device.address);
+        await controller?.print(
+          address: device.address,
+          keepConnected: true,
+          addFeeds: 4,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil mencetak!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Printer tidak dipilih')),
+        );
+      }
+    } else {
+      // Langsung cetak ke printer yang sudah disimpan
+      await controller?.print(
+        address: savedAddress!,
+        keepConnected: true,
+        addFeeds: 4,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Berhasil mencetak ke printer tersimpan!')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,30 +151,15 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage> {
             ),
       ),
       bottomNavigationBar: Padding(
-        
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
-          onPressed: () async {
-            final address = await FlutterBluetoothPrinter.selectDevice(context);
-            if (!mounted) return;
-            if (address != null) {
-              await controller?.print(
-                address: address.address,
-                keepConnected: true,
-                addFeeds: 4,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Berhasil mencetak!')),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Printer tidak dipilih')),
-              );
-            }
-          },
-          icon: const Icon(Icons.print,color: Colors.white,),
-          label: const Text('Pilih & Cetak',style: TextStyle(color: Colors.white),),
+          onPressed: _printReceipt,
+          icon: const Icon(Icons.print, color: Colors.white),
+          label: const Text(
+            'Cetak',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       ),
     );
